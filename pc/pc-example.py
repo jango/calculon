@@ -7,12 +7,12 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def producer(**kwargs):
-    kwargs["queue"].put(str(kwargs["id"]) + " produces " + str(kwargs["value"]))
+    kwargs["_queue"].put(str(kwargs["id"]) + " produces " + str(kwargs["value"]))
     return
 
 def consumer(**kwargs):
-    result = kwargs["result"]
-    exiting = kwargs["exit"]
+    result = kwargs["_result"]
+    exiting = kwargs["_exit"]
     
     if exiting:
         logger.info("Last call to consumer.")

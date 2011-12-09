@@ -16,9 +16,11 @@ class _Producer(Process):
 
     def run(self):
         if self.args is None:
-            self.args = {"queue" : self.queue}
+            self.args = {"_queue" : self.queue}
         else:
-            self.args["queue"] = self.queue
+            self.args["_queue"] = self.queue
+
+        self.args["_pid": proc_id]
 
         self.p(**self.args)
         
@@ -38,9 +40,11 @@ class _Consumer(Process):
 
     def run(self):
         if self.args is None:
-            self.args = {"queue" : self.queue}
+            self.args = {"_queue" : self.queue}
         else:
-            self.args["queue"] = self.queue
+            self.args["_queue"] = self.queue
+            
+        self.args["_pid": proc_id]            
             
         while True:
             if (self.exit.is_set() and self.queue.qsize() == 0):
@@ -50,13 +54,13 @@ class _Consumer(Process):
                     if self.queue.qsize() == 0:
                         continue
                     vals = self.queue.get(False)
-                    self.args["result"] = vals
+                    self.args["_result"] = vals
                     self.args = self.c(**self.args)
                 except:
                     time.sleep(1)
                     continue
         
-        self.args["exit"] = True
+        self.args["_exit"] = True
         self.args = self.c(**self.args)
         self.logger.info("Consumer instance (%s) exited..." % str(self.proc_id))
 
