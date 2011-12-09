@@ -1,6 +1,7 @@
 # PC
 This project is a generalized implementation of a consumer-producer problem
 using Python's multiprocessing module. It allows you:
+
 * define your own custom producer and consumer function;
 * specify the number of producers and consumers;
 * kick off the setup, sit back and enjoy your coffee;
