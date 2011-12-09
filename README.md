@@ -12,8 +12,13 @@ heavier approach.
 
 # Install
 There is no install process at the moment - download the source and do:
+
     from pc.pc import PC
 
 # Example
 Look into **pc-example.py** for a very simple usage example, look at the
 docstings to get more info.
+
+# License
+This project was released under MIT license, see **LICENSE** file for more
+information.
