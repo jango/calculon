@@ -1,3 +1,5 @@
+import time
+import random
 import logging
 from pc import PC
 
@@ -7,34 +9,37 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def producer(**kwargs):
-    kwargs["_queue"].put(str(kwargs["id"]) + " produces " + str(kwargs["value"]))
-    return
+    pid = kwargs["_pid"]
+    queue = kwargs["_queue"]
+    value = kwargs["value"]
+
+    # Random delay.
+    time.sleep(random.random() * 10)
+
+    queue.put("--> Producer " + str(pid) + " produced: " + str(value))
 
 def consumer(**kwargs):
     result = kwargs["_result"]
     exiting = kwargs["_exit"]
-    
     if exiting:
         logger.info("Last call to consumer.")
     else:
         logger.info(result)
     
-    # Don't forget the parameters if you changed them.
+    # Don't forget update & return the parameters if you changed them.
     return kwargs
 
 if __name__ == '__main__':
-    
-    p_args = [
-        {"id": 0, "value": 10},
-        {"id": 1, "value": 20},
-        {"id": 2, "value": 30},
-        {"id": 3, "value": 40},
-        {"id": 4, "value": 50},      
-    ]
-    
+    P_COUNT = 100  
+    C_COUNT = 100
+
+    p_args = []
     c_args = None
+
+    for i in range(0, P_COUNT):
+        p_args.append({"value": i * 10})
     
-    pc = PC(producer, 5, p_args, consumer, 5, c_args)
+    pc = PC(producer, P_COUNT, p_args, consumer, C_COUNT, c_args)
     
     pc.start() 
     
