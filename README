@@ -1,4 +1,4 @@
-# PC
+# Calculon
 This project is a customizable implementation of the producer-consumer pattern
 using Python's multiprocessing module:
 
