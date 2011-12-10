@@ -10,7 +10,7 @@ I wrote this because I needed a simple setup that would allow me to process
 simple parallel computing tasks that will not benefit from a heavier approach.
 
 # Install
-   easy_install calculon
+    easy_install calculon
 
 # Example
 Look into **calculon-example.py** for a very simple usage example, look at the
