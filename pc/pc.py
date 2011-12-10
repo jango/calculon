@@ -1,10 +1,6 @@
 #!/usr/bin/python
-import os
 import time
-import signal
-import logging
 from multiprocessing import Process, Queue, Event
-
 
 class PC:
     """Producer-consumer class. Resonsible for initializing producer
@@ -45,11 +41,6 @@ class PC:
         # Initialize the Queue.        
         self.queue = Queue()
         
-        # Setup logging.
-        logging.basicConfig(format='%(asctime)-15s %(message)s')
-        self.logger = logging.getLogger()
-        self.logger.setLevel(logging.INFO)
-        
     def start(self):
         """Starts producer and consumer processes and controls the shutdown."""
 
@@ -57,24 +48,22 @@ class PC:
         p_procs = []
         for id in range(0, self.p_count):
             if self.p_args is None:
-                p_proc = _Producer(self.logger, id, self.queue, self.producer, None)
+                p_proc = _Producer(id, self.queue, self.producer, None)
             else:
-                p_proc = _Producer(self.logger, id, self.queue, self.producer, self.p_args[id])
+                p_proc = _Producer(id, self.queue, self.producer, self.p_args[id])
             p_procs.append(p_proc)
             p_proc.start()
-            self.logger.info("Started Producer %s." % str(id))
     
         # Start consumers.
         c_procs = []
         for id in range(0, self.c_count):
             if self.c_args is None:
-                c_proc = _Consumer(self.logger, id, self.queue, self.consumer, None)
+                c_proc = _Consumer(id, self.queue, self.consumer, None)
             else:
-                c_proc = _Consumer(self.logger, id, self.queue, self.consumer, c_args[id])
+                c_proc = _Consumer(id, self.queue, self.consumer, c_args[id])
             c_procs.append(c_proc)
             c_proc.start()
-            self.logger.info("Started Consumer %s." % str(id))
-    
+   
         # Join on the producer processes.
         for proc in p_procs:
             proc.join()            
@@ -89,7 +78,7 @@ class PC:
 
 class _Producer(Process):
     """Producer class."""
-    def __init__(self, logger, proc_id, queue, p, args):
+    def __init__(self, proc_id, queue, p, args):
         """Initialize Producer object.
 
         Keyword arguments:
@@ -102,7 +91,6 @@ class _Producer(Process):
         """
 
         Process.__init__(self)
-        self.logger = logger
         self.proc_id = proc_id
         self.queue = queue
         self.p = p
@@ -125,17 +113,12 @@ class _Producer(Process):
 
         self.p(**self.args)
 
-        # After the producer function has returned, we are ready to exit.
-        self.logger.info("Producer instance (%s) exited..." % str(self.proc_id))
-
-
 class _Consumer(Process):
     """Consumer class."""
-    def __init__(self, logger, proc_id, queue, c, args):
+    def __init__(self, proc_id, queue, c, args):
         """Initialize Producer object.
 
         Keyword arguments:
-        logger  -- shared logging instance
         proc_id -- id of the consumer process 
         queue   -- shared queue
         c       -- consumer function
@@ -146,7 +129,6 @@ class _Consumer(Process):
         # Exit event indicating that there will be no items produced and it's
         # safe to exit once queue is empty.
         self.exit = Event()
-        self.logger = logger
         self.proc_id = proc_id
         self.args = args
         self.queue = queue
@@ -189,10 +171,7 @@ class _Consumer(Process):
         self.args["_result"] = None
 
         self.args = self.c(**self.args)
-        self.logger.info("Consumer instance (%s) exited..." % str(self.proc_id))
 
     def shutdown(self):
-        self.logger.info("Consumer (%s): instance received shutdown call..." % str(self.proc_id))
         self.exit.set()
-
 
