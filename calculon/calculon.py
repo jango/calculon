@@ -59,7 +59,7 @@ class Calculon:
             if self.c_args is None:
                 c_proc = _Consumer(id, self.queue, self.consumer, None)
             else:
-                c_proc = _Consumer(id, self.queue, self.consumer, c_args[id])
+                c_proc = _Consumer(id, self.queue, self.consumer, self.c_args[id])
             c_procs.append(c_proc)
             c_proc.start()
    
