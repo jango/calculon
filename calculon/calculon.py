@@ -171,14 +171,22 @@ class _Consumer():
         self.args["_exit"] = False
             
         while not (self.exit.is_set() and self.queue.qsize() == 0):
+            vals = None
+            
             try:
                 vals = self.queue.get(False)
-                self.args["_result"] = vals
-                self.args = self.c(**self.args)
             except:
                 time.sleep(1)
                 continue
 
+            if vals is not None:
+                try:
+                    self.args["_result"] = vals
+                    self.args = self.c(**self.args)
+                except Exception as e:
+                    print("Exception occured during consumer execution:")
+                    print(e)
+                
         # Last iteration call.        
         self.args["_exit"] = True
         self.args["_result"] = None

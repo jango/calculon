@@ -49,8 +49,7 @@ class TestCalculon(unittest.TestCase):
 
     def test_no_param_p(self):
         c = Calculon(self.producer, 1, None, self.consumer, 1, None)
-        c.start()
-        pass
+        #c.start()
 
     def test_normal_t(self):
         pass

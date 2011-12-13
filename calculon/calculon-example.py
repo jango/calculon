@@ -16,7 +16,7 @@ def producer(**kwargs):
     value = kwargs["value"]
 
     # Random delay.
-    time.sleep(random.random() * 10)
+    #time.sleep(random.random() * 10)
 
     queue.put("--> Producer " + str(pid) + " produced: " + str(value))
 
@@ -32,8 +32,8 @@ def consumer(**kwargs):
     return kwargs
 
 if __name__ == '__main__':
-    P_COUNT = 1  
-    C_COUNT = 1
+    P_COUNT = 25  
+    C_COUNT = 25
 
     p_args = []
     c_args = None
