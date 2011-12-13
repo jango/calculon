@@ -32,8 +32,8 @@ def consumer(**kwargs):
     return kwargs
 
 if __name__ == '__main__':
-    P_COUNT = 100  
-    C_COUNT = 100
+    P_COUNT = 1  
+    C_COUNT = 1
 
     p_args = []
     c_args = None
@@ -41,7 +41,10 @@ if __name__ == '__main__':
     for i in range(0, P_COUNT):
         p_args.append({"value": i * 10})
     
-    c = Calculon(producer, P_COUNT, p_args, consumer, C_COUNT, c_args)
-    
+    print("Running with threads...")
+    c = Calculon(producer, P_COUNT, p_args, consumer, C_COUNT, c_args, use_threads = True)
     c.start() 
-    
+
+    print("Running with processes...")
+    c = Calculon(producer, P_COUNT, p_args, consumer, C_COUNT, c_args, use_threads = False)
+    c.start() 
