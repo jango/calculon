@@ -1,0 +1,18 @@
+*** Version 1.0.1, XX-XXX-XXXX ***
+
+::Features
+    * added multithreading option;
+
+    * added ability to collect information back from consumers threads/processes
+      and return it back to the calling program;
+
+    * added unit tests for;
+    
+::Bug fixes
+    * Bug #1, exception when c_args is not None.
+
+*** Version 1.0, 10-Dec-2011 ***
+
+::Features
+    * first version, supports multiprocessing and custom producer / consumer
+    functions.

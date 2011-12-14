@@ -1,8 +1,25 @@
 import time
-from multiprocessing import Queue
-from multiprocessing import Process
-from multiprocessing import Process, Event
+import traceback
+from multiprocessing import Queue, Process, Event, Pipe
 from threading import Thread
+
+
+def filter_args(args):
+    """Filter the return argument dictionary by deleting all of the items
+    for which key does not start with a doble undescore. If the resulting
+    dictionary has no items, return None instead.
+    
+    Keyword arguments:
+    args -- a dictionary to filter.
+    """
+    
+    if args is not None:
+        for key in args.keys():
+            if not key.startswith('__'):
+                del args[key]
+        if len(args) == 0:
+            args = None
+    return args
 
 class Calculon:
     """Producer-consumer class. Resonsible for initializing producer
@@ -47,6 +64,7 @@ class Calculon:
     def start(self):
         """Starts producer and consumer processes and controls the shutdown."""
         p_objs = []
+        p_pipes = []
 
         for id in range(0, self.p_count):
             if self.p_args is None:
@@ -57,13 +75,16 @@ class Calculon:
             if self.use_threads:
                 p_obj = _PT(id, self.queue, self.producer, args)
             else:
-                p_obj = _PP(id, self.queue, self.producer, args)
+                ppipe, cpipe = Pipe()
+                p_pipes.append(ppipe)
+                p_obj = _PP(id, self.queue, self.producer, args, cpipe)
 
             p_objs.append(p_obj)
             p_obj.start()
             
         # Start consumers.
         c_objs = []
+        c_pipes = []
                
         for id in range(0, self.c_count):
             if self.p_args is None:
@@ -74,7 +95,9 @@ class Calculon:
             if self.use_threads:
                 c_obj = _CT(id, self.queue, self.consumer, args)
             else:
-                c_obj = _CP(id, self.queue, self.consumer, args)
+                ppipe, cpipe = Pipe()
+                c_pipes.append(ppipe)
+                c_obj = _CP(id, self.queue, self.consumer, args, cpipe)
 
             c_objs.append(c_obj)
             c_obj.start()
@@ -90,10 +113,24 @@ class Calculon:
         # Join on the consumers.
         for c_obj in c_objs:
             c_obj.join()
+          
+        ret_dict = {}
 
+        # Return the values to the calling thread:
+        for counter, p_obj in enumerate(p_objs):
+            #if isinstnace(p_obj, _PP):
+                
+            #ret_dict["p" + str(counter)] = self.filter_args(p_obj.args)
+            pass
+        for counter, c_obj in enumerate(c_objs):
+            #ret_dict["c" + str(counter)] = self.filter_args(c_obj.args)
+            pass
+
+        return ret_dict
+    
 class _Producer():
     """Producer class."""
-    def __init__(self, proc_id, queue, p, args):
+    def __init__(self, proc_id, queue, p, args, cpipe):
         """Initialize Producer object.
 
         Keyword arguments:
@@ -108,6 +145,7 @@ class _Producer():
         self.queue = queue
         self.p = p
         self.args = args
+        self.cpipe = cpipe
 
     def run(self):
         """Runs the producer function once. All of the arguments in self.args
@@ -124,11 +162,16 @@ class _Producer():
         self.args["_queue"] = self.queue
         self.args["_pid"] = self.proc_id 
 
-        self.p(**self.args)
+        self.args = self.p(**self.args)
+        
+        # For multiprocessing we need to communicate through a pipe.
+        if self.cpipe:
+            self.cpipe.send(filter_args(self.args))
+            self.cpipe.close()
 
 class _Consumer():
     """Consumer class."""
-    def __init__(self, proc_id, queue, c, args):
+    def __init__(self, proc_id, queue, c, args, cpipe):
         """Initialize Producer object.
 
         Keyword arguments:
@@ -143,9 +186,10 @@ class _Consumer():
         # safe to exit once queue is empty.
         self.exit = Event()
         self.proc_id = proc_id
-        self.args = args
         self.queue = queue
         self.c = c
+        self.args = args
+        self.cpipe = cpipe
 
     def run(self):
         """Runs the consumer function. All of the arguments in self.args are
@@ -163,13 +207,9 @@ class _Consumer():
         values if needed.
         """
 
-        # Internal args.
+        # Prepare self.args if none was provided.
         if self.args is None: self.args = {}
 
-        self.args["_pid"] = self.proc_id
-        self.args["_result"] = None
-        self.args["_exit"] = False
-            
         while not (self.exit.is_set() and self.queue.qsize() == 0):
             vals = None
             
@@ -182,36 +222,48 @@ class _Consumer():
             if vals is not None:
                 try:
                     self.args["_result"] = vals
+                    self.args["_pid"] = self.proc_id
+                    self.args["_exit"] = False
+                    
                     self.args = self.c(**self.args)
                 except Exception as e:
                     print("Exception occured during consumer execution:")
-                    print(e)
+                    print(traceback.format_exc(e))
                 
         # Last iteration call.        
         self.args["_exit"] = True
         self.args["_result"] = None
 
-        self.args = self.c(**self.args)
-
+        self.args =  self.c(**self.args)
+        
+        # For multiprocessing we need to communicate through a pipe.
+        if self.cpipe:
+            self.cpipe.send(filter_args(self.args))
+            self.cpipe.close()
+    
     def shutdown(self):
         self.exit.set()
         
 class _PT(_Producer, Thread):
+    """Thread-based producer class."""
     def __init__(self, proc_id, queue, p, args):
         Thread.__init__(self)
         _Producer.__init__(self, proc_id, queue, p, args)
         
 class _PP(_Producer, Process):
-    def __init__(self, proc_id, queue, p, args):
+    """Process-based producer class."""
+    def __init__(self, proc_id, queue, p, args, cpipe):
         Process.__init__(self)
-        _Producer.__init__(self, proc_id, queue, p, args)
+        _Producer.__init__(self, proc_id, queue, p, args, cpipe)
         
 class _CT(_Consumer, Thread):
+    """Thread-based consumer class."""
     def __init__(self, proc_id, queue, c, args):
         Thread.__init__(self)
-        _Consumer.__init__(self, proc_id, queue, c, args)        
+        _Consumer.__init__(self, proc_id, queue, c, args)
         
 class _CP(_Consumer, Process):
-    def __init__(self, proc_id, queue, c, args):
+    """Process-based consumer class."""
+    def __init__(self, proc_id, queue, c, args, cpipe):
         Process.__init__(self)
-        _Consumer.__init__(self, proc_id, queue, c, args)
+        _Consumer.__init__(self, proc_id, queue, c, args, cpipe)
