@@ -7,7 +7,7 @@ from threading import Thread
 def filter_args(args):
     """Filter the return argument dictionary by deleting all of the items
     for which key does not start with a doble undescore. If the resulting
-    dictionary has no items, return None instead.
+    dictionary has no items, returns an empty dictionary instead.
     
     Keyword arguments:
     args -- a dictionary to filter.
@@ -18,7 +18,7 @@ def filter_args(args):
             if not key.startswith('__'):
                 del args[key]
         if len(args) == 0:
-            args = None
+            args = {}
     return args
 
 class Calculon:
@@ -116,15 +116,18 @@ class Calculon:
           
         ret_dict = {}
 
-        # Return the values to the calling thread:
+        # Return the values to the calling thread. If we are running with threads:
         for counter, p_obj in enumerate(p_objs):
-            #if isinstnace(p_obj, _PP):
-                
-            #ret_dict["p" + str(counter)] = self.filter_args(p_obj.args)
-            pass
+            if isinstance(p_obj, _PP):
+                ret_dict["p" + str(counter)] = p_pipes[counter].recv()
+            else:
+                ret_dict["p" + str(counter)] = p_obj.args
+
         for counter, c_obj in enumerate(c_objs):
-            #ret_dict["c" + str(counter)] = self.filter_args(c_obj.args)
-            pass
+            if isinstance(c_obj, _CP):
+                ret_dict["c" + str(counter)] = c_pipes[counter].recv()
+            else:
+                ret_dict["c" + str(counter)] = c_obj.args
 
         return ret_dict
     
@@ -163,10 +166,13 @@ class _Producer():
         self.args["_pid"] = self.proc_id 
 
         self.args = self.p(**self.args)
+
+        # Filter arguments that will be returned.
+        self.args = filter_args(self.args)
         
         # For multiprocessing we need to communicate through a pipe.
         if self.cpipe:
-            self.cpipe.send(filter_args(self.args))
+            self.cpipe.send(self.args)
             self.cpipe.close()
 
 class _Consumer():
@@ -236,9 +242,12 @@ class _Consumer():
 
         self.args =  self.c(**self.args)
         
+        # Filter arguments that will be returned.
+        self.args = filter_args(self.args)
+        
         # For multiprocessing we need to communicate through a pipe.
         if self.cpipe:
-            self.cpipe.send(filter_args(self.args))
+            self.cpipe.send(self.args)
             self.cpipe.close()
     
     def shutdown(self):
@@ -248,7 +257,7 @@ class _PT(_Producer, Thread):
     """Thread-based producer class."""
     def __init__(self, proc_id, queue, p, args):
         Thread.__init__(self)
-        _Producer.__init__(self, proc_id, queue, p, args)
+        _Producer.__init__(self, proc_id, queue, p, args, None)
         
 class _PP(_Producer, Process):
     """Process-based producer class."""
@@ -260,7 +269,7 @@ class _CT(_Consumer, Thread):
     """Thread-based consumer class."""
     def __init__(self, proc_id, queue, c, args):
         Thread.__init__(self)
-        _Consumer.__init__(self, proc_id, queue, c, args)
+        _Consumer.__init__(self, proc_id, queue, c, args, None)
         
 class _CP(_Consumer, Process):
     """Process-based consumer class."""
