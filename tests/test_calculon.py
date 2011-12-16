@@ -1,9 +1,9 @@
 import unittest
-from calculon.calculon import Calculon
+from calculon import Calculon
 
 def run_test(args):
-    """Runs calculon with given arguments with threading and multiprocessing
-    option, returns result for both."""
+    """Runs calculon with given arguments with both threading and
+    multiprocessing option and returns result for both."""
     c = Calculon(*args, use_threads = True)
     ret_t = c.start()
 
@@ -69,44 +69,34 @@ class TestCalculon(unittest.TestCase):
     def test_normal_run(self):
         """Testing passing values to initialize producer and consumer receiving
         values from the queue."""
-        args = [
-                   {"some_value" : "some_value", "test_id" : 1},
-                   {"some_value" : "some_value", "test_id" : 1}
-                 ]
-
+        args = [{"some_value" : "some_value", "test_id" : 1}] 
         run_args = [self.producer, len(args), args, self.consumer, len(args), args]
         run_test(run_args)
 
     def test_return_values(self):
-        args = [
-                   {"test_id" : 2},
-                   {"test_id" : 2}
-                 ]
+        """Testing the ability to return values. Consumer/Producer return number
+        of values consumed/produced. Since consumer might have uneven
+        distribution of the number of consumed values, doing a summation
+        instead. In addition, the result for thread and process run should
+        match."""
 
+        args = [{"test_id" : 2} for n in range(2)] 
         run_args = [self.producer, len(args), args, self.consumer, len(args), args]
         ret_t, ret_p = run_test(run_args)
 
-        print ret_t
-       
-        #print ret_p
-        
-        #assertEquals(ret_t["p0"], ret_t["p1"])
-        #assertEquals(ret_t["c0"], ret_t["c1"])
-        #assertEquals(ret_t["p0"], ret_t["p1"])
-        #assertEquals(ret_t["c0"], ret_t["c1"])
-        
-        #    self.assertEquals(ret_t[key]["__return"], 123)
+        t_sum = [0, 0]
+        p_sum = [0, 0]
+        for id in range(0, len(args)):
+            p_key = "p" + str(id)
+            c_key = "c" + str(id)
 
-    def test_normal_t(self):
-        pass
-        #c_args = [
-        #           {"some_value" : "some_value", "test_id" : 1},
-        #           {"some_value" : "some_value", "test_id" : 1}
-        #         ]
-        #c = Calculon(self.producer, len(c_args), c_args,
-        #             self.consumer, len(c_args), c_args)
+            t_sum[0] += ret_t[p_key].get("__produced", 0)
+            t_sum[1] += ret_t[c_key].get("__consumed", 0)
 
-    def test_no_param_t(self):
-        pass
-        #c = Calculon(self.producer, 10, None, self.consumer, 10, None)
-        #c.start()
+            p_sum[0] += ret_p[p_key].get("__produced", 0)
+            p_sum[1] += ret_p[c_key].get("__consumed", 0)
+
+        self.assertEquals(t_sum[0], len(args))
+        self.assertEquals(t_sum[0], t_sum[1])
+        self.assertEquals(p_sum[0], t_sum[0])
+        self.assertEquals(p_sum[1], t_sum[1])

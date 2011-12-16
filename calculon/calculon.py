@@ -213,9 +213,6 @@ class _Consumer():
         values if needed.
         """
 
-        # Prepare self.args if none was provided.
-        if self.args is None: self.args = {}
-
         while not (self.exit.is_set() and self.queue.qsize() == 0):
             vals = None
             
@@ -227,8 +224,12 @@ class _Consumer():
 
             if vals is not None:
                 try:
+                    # Prepare self.args if none was provided.
+                    if self.args is None: self.args = {}
+
                     self.args["_result"] = vals
                     self.args["_pid"] = self.proc_id
+                    self.args["_queue"] = self.queue
                     self.args["_exit"] = False
                     
                     self.args = self.c(**self.args)

@@ -11,6 +11,9 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def producer(**kwargs):
+    """Producer, puts value received from the input arguments into the queue
+    after a random delay and returns a value back to the thread that started
+    calculon."""
     pid = kwargs["_pid"]
     queue = kwargs["_queue"]
     value = kwargs["value"]
@@ -25,6 +28,8 @@ def producer(**kwargs):
     return kwargs
 
 def consumer(**kwargs):
+    """Consumer, prints value received from the queue and returns a value back
+    to the thread that started calculon."""
     pid = kwargs["_pid"]
     result = kwargs["_result"]
     exiting = kwargs["_exit"]
@@ -38,14 +43,15 @@ def consumer(**kwargs):
     return kwargs
 
 if __name__ == '__main__':
+    # Number of threads.
     P_COUNT = 10
     C_COUNT = 10
 
-    p_args = []
-    c_args = None
+    # A list of dictionaries containing arguments to be passed to the producer.
+    p_args = [{"value": i * 10} for i in range(P_COUNT)]
 
-    for i in range(0, P_COUNT):
-        p_args.append({"value": i * 10})
+    # Not passing any arguments to consumer.
+    c_args = None      
     
     print("Running with threads...")
     c = Calculon(producer, P_COUNT, p_args, consumer, C_COUNT, c_args, use_threads = True)
