@@ -17,10 +17,11 @@ setup(
     long_description=read('README.md'),
     classifiers = ['Classifier: Development Status :: 5 - Production/Stable',
                    'Classifier: License :: OSI Approved :: MIT License'],
+    test_suite="tests",
     packages=find_packages(exclude=['tests']),
     package_data = {
-        'calculon': ['LICENSE', 'README.md5', 'RELEASE']
+        '': ['LICENSE', 'README.md5', 'RELEASE']
     },
-    include_package_date=True,
-    test_suite="tests",
+    include_package_data=True,
+
 )
