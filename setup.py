@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
-#from distutils.core import setup
-from setuptools import setup, find_packages
+from setuptools import setup
+
 
 # Utility function to read the README file.
 def read(fname):
@@ -9,19 +9,23 @@ def read(fname):
 
 setup(
     name='calculon',
-    version='1.1',
+    version='1.2',
     author='Nikita Pchelin',
-    author_email='nikita.pchelin@gmail.com',
+    author_email='nikita@pchelin.ca',
     url='https://github.com/jango/calculon',
-    description=r"Customizable implementation of the producer-consumer pattern using Python's multiprocessing module.",
+    description=r"Implementation of the producer-consumer pattern"
+                "with customizable producer and consumer methods and"
+                "an ability to choose thread/process model for execution.",
     long_description=read('README.md'),
-    classifiers = ['Classifier: Development Status :: 5 - Production/Stable',
-                   'Classifier: License :: OSI Approved :: MIT License'],
-    test_suite="tests",
-    packages=find_packages(exclude=['tests']),
-    package_data = {
-        '': ['LICENSE', 'README.md5', 'RELEASE']
-    },
-    include_package_data=True,
-
+    classifiers=['Classifier: Development Status :: 5 - Production/Stable',
+                 'Classifier: License :: OSI Approved :: MIT License',
+                 'Environment :: Console',
+                 'Intended Audience :: Developers',
+                 'Natural Language :: English',
+                 'Operating System :: POSIX',
+                 'Operating System :: Microsoft :: Windows',
+                 'Programming Language :: Python :: 2.7',
+                 'Topic :: System :: Distributed Computing'],
+    test_suite='calculon.test',
+    packages=['calculon'],
 )

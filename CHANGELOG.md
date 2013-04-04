@@ -1,0 +1,10 @@
+# CHANGELOG for calculon
+
+## 1.2
+
+    The package has been rewritten completely to improve the stability
+    and offer more options, it is not back-compatible. Features added / changed:
+
+    * consumer and producer functions are more isolated now;
+    * you have a choice between thread/processes and you can have a mix (i.e. run producers in threads and consumers as processes);
+    * results from each consumer / producer are returned as a dictionary all together once Calculon finishes.
