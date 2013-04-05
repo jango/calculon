@@ -26,7 +26,7 @@ def prod_function(kwargs):
         values.append(value)
         queue.put(value)
 
-    values.append(add)
+    values.append(int(add))
 
     return values
 
@@ -55,7 +55,7 @@ def cons_function(kwargs):
             int_list = result + [value]
     # And if it is.
     else:
-        int_list = result + [add]
+        int_list = result + [int(add)]
 
     return int_list
 
@@ -248,6 +248,23 @@ class TestCalculon(unittest.TestCase):
             cons_sum += sum(c["result"])
 
         self.assertTrue(prod_sum == cons_sum)
+
+    def test_exceptions(self):
+        """Checks that exceptions don't kill Calculon"""
+        NUM_PROD = 1
+        NUM_CONS = 1
+
+        p_args = []
+        c_args = []
+
+        for i in range(NUM_PROD):
+            p_args.append({"add": None})
+
+        for i in range(NUM_CONS):
+            c_args.append({"add": None})
+
+        c = Calculon(prod_function, p_args, False, cons_function, c_args, True)
+        result = c.start()
 
 if __name__ == '__main__':
     unittest.main()

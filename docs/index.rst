@@ -12,15 +12,15 @@ Calculon is inspired by a classic `producer-consumer problem <http://en.wikipedi
 
 Calculon works great for small and medium-sized parallel computing problems, especially if you don't want to employ a heavy framework. The original application of this package was to support web mining. In that case, producers were configured to parse web pages and consumers were configured to store the results in the database.
 
-Calculon has been tested on Windows, Linux, and Cygwin, but it might be helpful to run:
+Calculon has been tested on Windows, Linux, and Cygwin, but it might be helpful to run::
 
   $ python setup.py test
 
 to verify that threading / multoprocessing works correctly on your platform.
 
-Install
--------
-You can install the package through *easy_install*::
+Installation
+------------
+The easiest way is to install the package through *easy_install*::
 
   $ easy_install calculon
 
@@ -28,21 +28,27 @@ or *pip*::
 
   $ pip install calculon
 
+You can also get the stable version of the package on PyPi:
+    https://pypi.python.org/pypi/calculon
+
+Alternatively, if you want to see the development version, check it out from GitHub:
+    https://github.com/jango/calculon
+
 
 Example
 -------
 
-The full working file of the example can be found in::
+The full working file of this example can be found in::
 
     calculon/example/example.py
 
 
-Writing Producer Function
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Producer
+~~~~~~~~
 
-Start by writing a producer function. It should accept a single argument, a dictionary of parameters passed to the function. The code below produces five strings of text by combining two names, one from the list, and one from the arguments list. The producer code is called only once by calculon. The function will also return `Finished!` once it is done running.
+Let's start by writing a producer function. It should accept a single argument, a dictionary of parameters passed to it. The code below produces five strings of text by combining two names, one from the list, and one from the arguments list, five times. The producer code is called only once by calculon. The function will also return `Finished!` once it is done running.
 
-.. code:: python
+.. code-block:: python
 
     NAMES = ['John', 'Sally', 'Branko', 'Elena', 'Michael']
     VERBS = ['walks', 'plays', 'sings', 'drinks']
@@ -54,21 +60,17 @@ Start by writing a producer function. It should accept a single argument, a dict
 
         return "Finished!"
 
-There are a few predefined arguments in the `args` dictionary that are there at each call:
-    * `_queue` is the queue object instance in which producer should put the results;
-    * `_name`  is the unique name (uuid) of this consumer instance.
-
-An extra argument, `extra_name` is one of the arguments that we pass to the instance of the consumer ourself, as you will soon see.
+There are a few "special" arguments in the `args` dictionary available to the producer. More information about on :ref:`producer` page. An extra argument, `extra_name` is one of the arguments that we pass to the producer ourselves when instantiating a Calculon object, which you will see a bit later.
 
 
-Writing Consumer Function
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Consumer
+~~~~~~~~
 
-Now let's write a consumer. The consumer will take one of the strings produced by the producer, and choose two verbs, one randomly and the other one from the `args` parameters; the final string will be printed to the screen. At each time, the consumer function runs, it will return how many times it's run so far.
+Now let's write a consumer. The consumer will take one of the strings from the queue and append two verbs, one selected randomly and one passed to it through `args` parameter. Then, the final result will be printed to the screen. In addition, every time the consumer function runs, it will return how many times it's run so far.
 
-The consumer is called as many times as many values are available for it to process plus one time after the queue is empty. This last time is there to allow any sort of clean up that the consumer might need to do.
+Note that the consumer is called as many times as many values are available for it to process `plus` one time after the queue is empty. This last time is there to allow any sort of cleanup that the consumer might need to do.
 
-.. code:: python
+.. code-block:: python
 
     def consumer(args):
         value = args["_value"]
@@ -97,24 +99,15 @@ The consumer is called as many times as many values are available for it to proc
         else:
             return result
 
-There are a few predefined arguments in the `args` dictionary that are there at each call:
-        * `_name` is the queue object instance in which producer should put the results;
-        * `_value`      -- value received from the queue to process;
-        * `_last_call`  -- flag indicating that this is the last call to the
-                       consumer. This can be used by the consumer to do last
-                       minute clean-up work. If _last_call is True, _value is None.
-        * `_result`     -- contains the return value of the previous call to the consumer
-                       function. Contains None on the frst call.
+There are a few predefined arguments in the `args` dictionary. More information on those can be found on :ref:`consumer` page.
 
 
 Running Calculon
 ~~~~~~~~~~~~~~~~
 
-Finally to put all of these together...
-Start by writing a producer function. It should accept a single argument, a dictionary
-of parameters passed to the function. for example:
+Finally, let's put these two pieces together by instantiating a Calculon object and starting it:
 
-.. code:: python
+.. code-block:: python
 
     pp = pprint.PrettyPrinter(indent=4)
 
@@ -129,13 +122,14 @@ of parameters passed to the function. for example:
 
     pp.pprint(result)
 
-The first and third parameters are the producer and the consumer functions,
-
+The first and fourth parameters are the producer and the consumer functions that we just wrote. The second and fifth are lists of arguments for the producers and consumers. As you can see, we asked for one producer and two consumers. The third and sixth parameters specify what type of multiprocessing to use threads (if the value is `True`) or processes. More information about these parameters can be found on :ref:`calculon` page.
 
 Result
 ~~~~~~
 
-.. code:: bash
+When you run the sample code, your output will look something like that:
+
+.. code-block:: bash
 
     jango@sunblaze:~/workspace/calculon/calculon/example$ python example.py
     John and Tania sings and dances.
@@ -150,11 +144,15 @@ Result
         'producers': [   {   'name': '91ce694e9d8411e2b78100241dd35a03',
                              'result': 'Finished!'}]}
 
+In this case, the first consumer processed three records and the other one processed three. All five generated sentences are also printed on the screen.
+
 
 Handling Exceptions
 ~~~~~~~~~~~~~~~~~~~
 
-.. code:: bash
+If a call to your producer / consumer functions results in an exception, this is what you will get instead:
+
+.. code-block:: bash
 
     jango@sunblaze:~/workspace/calculon/calculon/example$ python example.py
     {   'consumers': [   {   'exception': ZeroDivisionError('integer division or modulo by zero',),
@@ -165,10 +163,11 @@ Handling Exceptions
                              'result': 'Finished!'}]}
 
 
+Note that you can use the exception object returned to obtain more information about the problem.
+
 More Info
 ---------
-The example section contains most of the functionality available through `calculon`. If you are looking for something more, dive into the :ref:`autodoc` or ask the author.
-
+The example section contains most of the functionality available through this package. If you are looking for something more, dive into the :ref:`autodoc` or ask the author.
 
 Author
 ------
@@ -184,4 +183,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

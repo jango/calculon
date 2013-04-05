@@ -3,6 +3,8 @@
 Source Documentation
 ====================
 
+.. _calculon:
+
 Module: calculon.Calculon
 -------------------------
 
@@ -10,6 +12,8 @@ Module: calculon.Calculon
    :members:
    :private-members:
    :special-members:
+
+.. _producer:
 
 Module: calculon.Producer
 -------------------------
@@ -28,6 +32,8 @@ Module: calculon.Producer
    :members:
    :private-members:
    :special-members:
+
+.. _consumer:
 
 Module calculon.Consumer
 ------------------------
