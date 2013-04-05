@@ -5,19 +5,18 @@ from Producer import ProducerProcess, ProducerThread
 
 
 class Calculon:
-    """Producer-consumer class. Resonsible for initializing producer
-    and consumer classes and controls execution."""
-    def __init__(self, prod_func, prod_kwargs, prod_use_threads, cons_func, cons_kwargs, cons_use_threads=False):
-        """Initialize Calculon object.
+    """Producer-consumer class. Responsible for initializing producers and consumers and controlling execution."""
+    def __init__(self, prod_func, prod_kwargs, prod_use_threads, cons_func, cons_kwargs, cons_use_threads):
+        """Initializes Calculon.
 
-        Keyword arguments:
-        prod_func    -- producer function that accepts {}
-        prod_kwargs  -- a list of {} equal to the number of producer processes
-        prod_use_threads -- a flag specifying if threads are used to run producer code.
+        **Keyword arguments**
 
-        cons_func    -- consumer function that accepts {}
-        cons_kwargs  -- a list of {} equal to the number of consumer processes
-        cons_use_threads -- a flag specifying if threads are used to run consumer code.
+        * prod_func    -- producer function that accepts one argument (dictionary of values);
+        * prod_kwargs  -- a list of dictionaries, each representing a set of arguments for an instance of the producer function;
+        * prod_use_threads -- a flag specifying if threads are used to run producer code (if False, processes are used);
+        * cons_func    -- consumer function that accepts one argument (dictionary of values)
+        * cons_kwargs  -- a list of dictionaries, each representing a set of arguments for an instance of the consumer function
+        * cons_use_threads -- a flag specifying if threads are used to run consumer code (if False, processes are used).
         """
 
         self.cons_func = cons_func
@@ -31,7 +30,18 @@ class Calculon:
         self.queue = Queue()
 
     def start(self):
-        """Starts producer and consumer threads/processes and controls the execution and shutdown."""
+        """Starts producer and consumer threads / processes and controls the execution.
+
+        **Keyword arguments**
+
+            None
+
+        **Returns**
+            Returns a dictionary containing two elements:
+
+            * value for key "producers" contains a list of results returned by each of the producer instance.
+            * value for key "consumers" contains a list of results returned by each of the consumer instance.
+        """
 
         # Producers.
         prod_objs = []

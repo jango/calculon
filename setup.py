@@ -9,7 +9,7 @@ def read(fname):
 
 setup(
     name='calculon',
-    version='1.2',
+    version='1.1',
     author='Nikita Pchelin',
     author_email='nikita@pchelin.ca',
     url='https://github.com/jango/calculon',

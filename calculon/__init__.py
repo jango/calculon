@@ -1,3 +1,3 @@
 from Calculon import Calculon
-from Producer import ProducerThread, ProducerProcess
-from Consumer import ConsumerThread, ConsumerProcess
+from Producer import ProducerThread, ProducerProcess, _Producer
+from Consumer import ConsumerThread, ConsumerProcess, _Consumer

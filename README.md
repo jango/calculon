@@ -1,70 +1,19 @@
 # Calculon
-This project is a customizable implementation of the producer-consumer pattern
-using Python's multiprocessing & threading modules. Using the existing code you
-may:
+This project is a customizable implementation of the producer-consumer pattern using Python's multithreading and multiprocessing capabilities. Calculon allows you to:
 
-* define a custom producer and a custom consumer function;
+* define a custom producer that puts values into a queue;
+* define a custom consumer that processes values obtained from the queue;
 * choose between multiprocessing or multithreading option to run the functions;
-* pass arbitrary information back from each of the producer / consumer instance
-back to the calling instance;
+* pass arbitrary information to and back from each of the producer / consumer;
 
-I wrote this because I needed a simple setup that would allow me to process
-simple parallel computing tasks that will not benefit from a heavier approach.
+This package will be helpful to someone who is looking to use a producer-consumer
+pattern to perform simple parallel computing tasks.
 
-# Install
-To install the stable version:
-    easy_install calculon
-    
-Otherwise, you can checkout the current code from the github repository:
-https://github.com/jango/calculon
-
-# Example
-Look into **calculon-example.py** for a very simple usage example, look at the
-docstings to get more info.
-
-## Writing a producer method
-
-    The producer method must accepts ** **kwargs **
-
-    def producer(**kwargs):
-        pid = kwargs["_pid"]
-        queue = kwargs["_queue"]
-        value = kwargs["value"]
-
-        # Random delay.
-        time.sleep(random.random() * 5)
-
-        queue.put("--> Producer " + str(pid) + " produced: " + str(value))
-
-        kwargs['__return_value'] = "p%s returns a value" % pid
-
-        return kwargs
-
-## Writing a consumer method
-    def consumer(**kwargs):
-        pid = kwargs["_pid"]
-        result = kwargs["_result"]
-        exiting = kwargs["_exit"]
-
-        if exiting:
-            logger.info("Last call to consumer.")
-            kwargs['__return_value'] = "c%s returns a value" % pid
-        else:
-            logger.info(result)
-
-        return kwargs
-
-## Running the code:
-    from calculon import Calculon
-
-    c = Calculon(producer, P_COUNT, p_args, consumer, C_COUNT, c_args, use_threads = False)
-    ret = c.start()
-    print("Return values:")
-    print ret
+# Documentation
+Documentation is hosted on [Read the Docs] (https://readthedocs.org/projects/calculon/) and includes detailed information on installing and using the package.
 
 # License
-This project was released under MIT license, see **LICENSE** file for more
-information.
+This project was released under MIT license, see **LICENSE** file for more information.
 
 # Release Notes
 See RELEASE file for the release history.
