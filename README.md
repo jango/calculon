@@ -10,7 +10,7 @@ This package will be helpful to someone who is looking to use a producer-consume
 pattern to perform simple parallel computing tasks.
 
 # Documentation
-Documentation is hosted on [Read the Docs] (https://readthedocs.org/projects/calculon/) and includes detailed information on installing and using the package.
+Documentation is hosted on [Read the Docs] (https://calculon.readthedocs.org/en/latest) and includes detailed information on installing and using the package.
 
 # License
 This project was released under MIT license, see **LICENSE** file for more information.
