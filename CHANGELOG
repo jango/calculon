@@ -1,6 +1,10 @@
 # CHANGELOG for calculon
 
-## 1.1
+## 1.1.0 - 06/April/2013
+
+   * Fixing packaging to include calculon.test
+
+## 1.1.0 - 04/April/2013
 
     The package has been rewritten completely to improve the stability
     and offer more options, it is not back-compatible. Features added / changed:

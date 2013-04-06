@@ -9,7 +9,7 @@ def read(fname):
 
 setup(
     name='calculon',
-    version='1.1',
+    version='1.1.1',
     author='Nikita Pchelin',
     author_email='nikita@pchelin.ca',
     url='https://github.com/jango/calculon',
@@ -27,5 +27,5 @@ setup(
                  'Programming Language :: Python :: 2.7',
                  'Topic :: System :: Distributed Computing'],
     test_suite='calculon.test',
-    packages=['calculon'],
+    packages=['calculon', 'calculon.test'],
 )
