@@ -17,8 +17,8 @@ setup(
                 "with customizable producer and consumer methods and"
                 "an ability to choose thread/process model for execution.",
     long_description=read('README.md'),
-    classifiers=['Classifier: Development Status :: 5 - Production/Stable',
-                 'Classifier: License :: OSI Approved :: MIT License',
+    classifiers=['Development Status :: 5 - Production/Stable',
+                 'License :: OSI Approved :: MIT License',
                  'Environment :: Console',
                  'Intended Audience :: Developers',
                  'Natural Language :: English',
